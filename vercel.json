@@ -1,0 +1,8 @@
+// Cấu hình Vercel: ép dùng Next.js và output .next để tránh lỗi missing public
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next"
+}
+
