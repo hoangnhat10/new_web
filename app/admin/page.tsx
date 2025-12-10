@@ -123,6 +123,7 @@ export default function AdminPage() {
     []
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const saved = localStorage.getItem('admin_authed');
     if (saved === 'true') {
@@ -830,7 +831,7 @@ export default function AdminPage() {
                   placeholder="Nhập nội dung bài viết...&#10;&#10;Bạn có thể chèn ảnh bằng cách click vào '📷 Chèn ảnh' ở trên."
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  💡 Mẹo: Đặt con trỏ vào vị trí muốn chèn ảnh, sau đó click "Chèn ảnh". Ảnh sẽ được chèn vào vị trí con trỏ.
+                  💡 Mẹo: Đặt con trỏ vào vị trí muốn chèn ảnh, sau đó click &quot;Chèn ảnh&quot;. Ảnh sẽ được chèn vào vị trí con trỏ.
                 </p>
               </div>
               <div>

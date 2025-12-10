@@ -135,6 +135,11 @@ npm start
 
 ## Lịch sử thay đổi
 
+### Version 1.2.1 (2024)
+- ✅ Fix build trên Vercel: escape ký tự dấu nháy kép trong trang admin
+- ✅ Tắt rule `@next/next/no-img-element` để chấp nhận `<img>` cho ảnh base64 hiện tại
+- ✅ Giữ nguyên logic hook đăng nhập admin (chỉ disable warning exhaustive-deps tại chỗ)
+
 ### Version 1.2.0 (2024)
 - ✅ Thêm trang Admin (/admin) với đăng nhập (mật khẩu env `NEXT_PUBLIC_ADMIN_PASS`, mặc định `admin123`)
 - ✅ Quản lý sản phẩm: thêm/sửa/xóa, upload ảnh (base64) và lưu vào `data/admin-products.json`
