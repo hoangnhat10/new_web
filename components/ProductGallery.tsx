@@ -23,6 +23,8 @@ export default function ProductGallery({ images, fallbackIcon = '🚪' }: Props)
   const [animStyle, setAnimStyle] = useState<{ translate: number; opacity: number }>({ translate: 0, opacity: 1 });
   const containerRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchDeltaX = useRef<number>(0);
   const zoomScale = 2.5;
   const autoPlayMs = 4500;
 
@@ -75,6 +77,29 @@ export default function ProductGallery({ images, fallbackIcon = '🚪' }: Props)
     setActiveIndex((prev) => (prev + 1) % list.length);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (list.length <= 1) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || list.length <= 1) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || list.length <= 1) return;
+    const threshold = 40; // px
+    if (touchDeltaX.current > threshold) {
+      goPrev();
+    } else if (touchDeltaX.current < -threshold) {
+      goNext();
+    }
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+  };
+
   return (
     <>
       <div className="space-y-3">
@@ -84,6 +109,9 @@ export default function ProductGallery({ images, fallbackIcon = '🚪' }: Props)
             !isMobile ? 'cursor-zoom-in' : 'cursor-pointer'
           }`}
           onClick={() => active && setIsOpen(true)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {active ? (
             <>
@@ -218,6 +246,9 @@ export default function ProductGallery({ images, fallbackIcon = '🚪' }: Props)
                 const y = Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100));
                 setLensPos({ x, y });
               }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               style={{
                 backgroundImage: !isMobile && showLens ? `url(${active})` : 'none',
                 backgroundRepeat: 'no-repeat',
