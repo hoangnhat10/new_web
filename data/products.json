@@ -1,0 +1,129 @@
+[
+  {
+    "id": "1",
+    "name": "Cổng Nhôm Đúc Cổ Điển",
+    "description": "Cổng nhôm đúc với thiết kế cổ điển, sang trọng, phù hợp với biệt thự và nhà phố cao cấp.",
+    "price": 15000000,
+    "image": "/images/product-1.jpg",
+    "category": "Cổng nhôm đúc",
+    "features": [
+      "Thiết kế cổ điển, sang trọng",
+      "Chất liệu nhôm đúc cao cấp",
+      "Chống gỉ, chống oxy hóa",
+      "Dễ dàng vệ sinh và bảo trì",
+      "Bảo hành 5 năm"
+    ],
+    "specifications": {
+      "material": "Nhôm đúc hợp kim",
+      "size": "Rộng 4m x Cao 2.5m",
+      "weight": "150kg",
+      "warranty": "5 năm"
+    }
+  },
+  {
+    "id": "2",
+    "name": "Cổng Nhôm Đúc Hiện Đại",
+    "description": "Cổng nhôm đúc với thiết kế hiện đại, tối giản, phù hợp với kiến trúc hiện đại.",
+    "price": 12000000,
+    "image": "/images/product-2.jpg",
+    "category": "Cổng nhôm đúc",
+    "features": [
+      "Thiết kế hiện đại, tối giản",
+      "Chất liệu nhôm đúc bền bỉ",
+      "Khóa điện tử thông minh",
+      "Lắp đặt nhanh chóng",
+      "Bảo hành 5 năm"
+    ],
+    "specifications": {
+      "material": "Nhôm đúc hợp kim",
+      "size": "Rộng 3.5m x Cao 2.2m",
+      "weight": "120kg",
+      "warranty": "5 năm"
+    }
+  },
+  {
+    "id": "3",
+    "name": "Cổng Nhôm Đúc Nghệ Thuật",
+    "description": "Cổng nhôm đúc với hoa văn nghệ thuật tinh xảo, tạo điểm nhấn cho không gian.",
+    "price": 18000000,
+    "image": "/images/product-3.jpg",
+    "category": "Cổng nhôm đúc",
+    "features": [
+      "Hoa văn nghệ thuật tinh xảo",
+      "Thiết kế độc đáo, riêng biệt",
+      "Chất liệu nhôm đúc cao cấp",
+      "Chống gỉ, chống oxy hóa",
+      "Bảo hành 5 năm"
+    ],
+    "specifications": {
+      "material": "Nhôm đúc hợp kim",
+      "size": "Rộng 4.5m x Cao 2.8m",
+      "weight": "180kg",
+      "warranty": "5 năm"
+    }
+  },
+  {
+    "id": "4",
+    "name": "Hàng Rào Nhôm Đúc",
+    "description": "Hàng rào nhôm đúc với thiết kế chắc chắn, an toàn, phù hợp cho biệt thự và công trình.",
+    "price": 2500000,
+    "image": "/images/product-4.jpg",
+    "category": "Hàng rào nhôm đúc",
+    "features": [
+      "Thiết kế chắc chắn, an toàn",
+      "Chất liệu nhôm đúc bền bỉ",
+      "Dễ dàng lắp đặt",
+      "Chống gỉ, chống oxy hóa",
+      "Bảo hành 3 năm"
+    ],
+    "specifications": {
+      "material": "Nhôm đúc hợp kim",
+      "size": "Rộng 1m x Cao 1.8m",
+      "weight": "25kg",
+      "warranty": "3 năm"
+    }
+  },
+  {
+    "id": "5",
+    "name": "Cổng Nhôm Đúc 2 Cánh",
+    "description": "Cổng nhôm đúc 2 cánh với thiết kế cân đối, phù hợp với cổng chính của biệt thự.",
+    "price": 16000000,
+    "image": "/images/product-5.jpg",
+    "category": "Cổng nhôm đúc",
+    "features": [
+      "Thiết kế 2 cánh cân đối",
+      "Chất liệu nhôm đúc cao cấp",
+      "Hệ thống khóa an toàn",
+      "Dễ dàng vệ sinh",
+      "Bảo hành 5 năm"
+    ],
+    "specifications": {
+      "material": "Nhôm đúc hợp kim",
+      "size": "Rộng 5m x Cao 2.5m",
+      "weight": "200kg",
+      "warranty": "5 năm"
+    }
+  },
+  {
+    "id": "6",
+    "name": "Cổng Nhôm Đúc 1 Cánh",
+    "description": "Cổng nhôm đúc 1 cánh với thiết kế gọn gàng, phù hợp với không gian nhỏ.",
+    "price": 10000000,
+    "image": "/images/product-6.jpg",
+    "category": "Cổng nhôm đúc",
+    "features": [
+      "Thiết kế 1 cánh gọn gàng",
+      "Chất liệu nhôm đúc bền bỉ",
+      "Tiết kiệm không gian",
+      "Dễ dàng lắp đặt",
+      "Bảo hành 5 năm"
+    ],
+    "specifications": {
+      "material": "Nhôm đúc hợp kim",
+      "size": "Rộng 2.5m x Cao 2.2m",
+      "weight": "100kg",
+      "warranty": "5 năm"
+    }
+  }
+]
+
