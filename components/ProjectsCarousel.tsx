@@ -206,8 +206,6 @@ export default function ProjectsCarousel({ projects }: Props) {
               className={`w-1/3 h-full flex-shrink-0 ${!isDragging ? 'transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : ''}`}
               style={{
                 transform: `translateX(${isDragging ? dragOffset * 0.3 : 0}px) scale(0.9)`,
-                opacity: 0.7,
-                filter: 'blur(2px)',
               }}
             >
               <div 
@@ -263,8 +261,6 @@ export default function ProjectsCarousel({ projects }: Props) {
               className={`w-1/3 h-full flex-shrink-0 ${!isDragging ? 'transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : ''}`}
               style={{
                 transform: `translateX(${isDragging ? dragOffset * 0.3 : 0}px) scale(0.9)`,
-                opacity: 0.7,
-                filter: 'blur(2px)',
               }}
             >
               <div 
