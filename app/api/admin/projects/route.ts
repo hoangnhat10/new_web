@@ -29,9 +29,14 @@ async function writeProjects(projects: Project[]) {
   try {
     const dataDir = path.dirname(dataPath);
     await fs.mkdir(dataDir, { recursive: true });
-    await fs.writeFile(dataPath, JSON.stringify(projects, null, 2), 'utf8');
-  } catch (error) {
+    const jsonString = JSON.stringify(projects, null, 2);
+    await fs.writeFile(dataPath, jsonString, 'utf8');
+  } catch (error: any) {
     console.error('Error writing projects:', error);
+    // Kiểm tra nếu là lỗi quyền truy cập (như trên Vercel)
+    if (error?.code === 'EACCES' || error?.code === 'EROFS' || error?.message?.includes('read-only')) {
+      throw new Error('Không thể ghi file trên server này. Vui lòng kiểm tra cấu hình server hoặc sử dụng database/storage service.');
+    }
     throw error;
   }
 }
@@ -49,6 +54,15 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    
+    // Validate dữ liệu
+    if (!body.image || typeof body.image !== 'string') {
+      return NextResponse.json(
+        { error: 'Ảnh công trình là bắt buộc' },
+        { status: 400 }
+      );
+    }
+    
     const projects = await readProjects();
     
     const newProject: Project = {
@@ -63,8 +77,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ project: newProject, success: true });
   } catch (error: any) {
     console.error('Error creating project:', error);
+    const errorMessage = error?.message || 'Không thể thêm công trình';
+    const errorDetails = error?.code ? ` (Code: ${error.code})` : '';
     return NextResponse.json(
-      { error: error?.message || 'Không thể thêm công trình', details: String(error) },
+      { error: errorMessage, details: String(error) + errorDetails },
       { status: 500 }
     );
   }
@@ -73,6 +89,21 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
+    
+    if (!body.id) {
+      return NextResponse.json(
+        { error: 'Thiếu ID công trình' },
+        { status: 400 }
+      );
+    }
+    
+    if (!body.image || typeof body.image !== 'string') {
+      return NextResponse.json(
+        { error: 'Ảnh công trình là bắt buộc' },
+        { status: 400 }
+      );
+    }
+    
     const projects = await readProjects();
     
     const index = projects.findIndex((p) => p.id === body.id);
@@ -91,8 +122,10 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ project: projects[index], success: true });
   } catch (error: any) {
     console.error('Error updating project:', error);
+    const errorMessage = error?.message || 'Không thể cập nhật công trình';
+    const errorDetails = error?.code ? ` (Code: ${error.code})` : '';
     return NextResponse.json(
-      { error: error?.message || 'Không thể cập nhật công trình', details: String(error) },
+      { error: errorMessage, details: String(error) + errorDetails },
       { status: 500 }
     );
   }
@@ -124,4 +157,5 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
 

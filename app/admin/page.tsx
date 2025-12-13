@@ -494,6 +494,15 @@ export default function AdminPage() {
       setProjectErr('Vui lòng chọn ảnh công trình');
       return;
     }
+    
+    // Kiểm tra kích thước ảnh base64 (ước tính ~1.33x kích thước file gốc)
+    const imageSize = projectForm.image.length;
+    const estimatedSizeMB = (imageSize * 0.75) / (1024 * 1024); // Ước tính MB
+    if (estimatedSizeMB > 5) {
+      setProjectErr(`Ảnh quá lớn (ước tính ${estimatedSizeMB.toFixed(2)}MB). Vui lòng chọn ảnh nhỏ hơn 5MB.`);
+      return;
+    }
+    
     setLoadingProjects(true);
     setProjectMsg(null);
     setProjectErr(null);
@@ -508,12 +517,20 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Lưu công trình thất bại');
+      
+      const data = await res.json();
+      if (!res.ok) {
+        const errorMsg = data.error || data.message || 'Lưu công trình thất bại';
+        const details = data.details ? ` Chi tiết: ${data.details}` : '';
+        throw new Error(errorMsg + details);
+      }
+      
       await fetchProjects();
       setProjectMsg(projectForm.id ? 'Đã cập nhật công trình' : 'Đã thêm công trình');
       setProjectForm(EMPTY_PROJECT);
     } catch (err: any) {
-      setProjectErr(err?.message || 'Có lỗi xảy ra');
+      console.error('Error saving project:', err);
+      setProjectErr(err?.message || 'Có lỗi xảy ra khi lưu công trình');
     } finally {
       setLoadingProjects(false);
     }
