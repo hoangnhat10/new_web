@@ -1,12 +1,14 @@
 /**
  * API Projects admin
- * Lưu danh sách công trình tiêu biểu vào JSON
+ * Lưu danh sách công trình tiêu biểu vào Vercel KV (production) hoặc file JSON (local dev)
  */
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
+import { kv } from '@vercel/kv';
 
 const dataPath = path.join(process.cwd(), 'data', 'admin-projects.json');
+const KV_KEY = 'admin-projects';
 
 type Project = {
   id: string;
@@ -15,7 +17,28 @@ type Project = {
   description?: string;
 };
 
+// Kiểm tra xem có thể sử dụng Vercel KV không
+function canUseKV(): boolean {
+  return !!(
+    process.env.KV_REST_API_URL &&
+    process.env.KV_REST_API_TOKEN &&
+    process.env.KV_REST_API_READ_ONLY_TOKEN
+  );
+}
+
 async function readProjects(): Promise<Project[]> {
+  // Ưu tiên sử dụng Vercel KV nếu có
+  if (canUseKV()) {
+    try {
+      const data = await kv.get<Project[]>(KV_KEY);
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error reading from KV:', error);
+      // Fallback về file system nếu KV lỗi
+    }
+  }
+  
+  // Fallback về file system cho local development
   try {
     const raw = await fs.readFile(dataPath, 'utf8');
     const parsed = JSON.parse(raw);
@@ -26,6 +49,18 @@ async function readProjects(): Promise<Project[]> {
 }
 
 async function writeProjects(projects: Project[]) {
+  // Ưu tiên sử dụng Vercel KV nếu có
+  if (canUseKV()) {
+    try {
+      await kv.set(KV_KEY, projects);
+      return;
+    } catch (error: any) {
+      console.error('Error writing to KV:', error);
+      throw new Error(`Không thể lưu vào Vercel KV: ${error?.message || String(error)}`);
+    }
+  }
+  
+  // Fallback về file system cho local development
   try {
     const dataDir = path.dirname(dataPath);
     await fs.mkdir(dataDir, { recursive: true });
@@ -35,7 +70,7 @@ async function writeProjects(projects: Project[]) {
     console.error('Error writing projects:', error);
     // Kiểm tra nếu là lỗi quyền truy cập (như trên Vercel)
     if (error?.code === 'EACCES' || error?.code === 'EROFS' || error?.message?.includes('read-only')) {
-      throw new Error('Không thể ghi file trên server này. Vui lòng kiểm tra cấu hình server hoặc sử dụng database/storage service.');
+      throw new Error('Không thể ghi file trên server này. Vui lòng cấu hình Vercel KV hoặc sử dụng database/storage service.');
     }
     throw error;
   }
