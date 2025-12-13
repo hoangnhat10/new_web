@@ -13,6 +13,11 @@ const inter = Inter({ subsets: ["latin", "vietnamese"] });
 export const metadata: Metadata = {
   title: "Cổng Nhôm Đúc - Sản phẩm và Dịch vụ Chất Lượng",
   description: "Chuyên cung cấp cổng nhôm đúc, hàng rào nhôm đúc và các dịch vụ thi công uy tín, chất lượng cao",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default function RootLayout({

@@ -21,27 +21,27 @@ export default function ProductsClient({ products, categories }: Props) {
   }, [products, selectedCategory]);
 
   return (
-    <div className="py-16 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4">
+    <div className="py-10 sm:py-12 md:py-16 bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-16 animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Sản Phẩm Cổng Nhôm Đúc</h1>
-          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">
+        <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-fade-in-up">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gray-900 px-4">Sản Phẩm Cổng Nhôm Đúc</h1>
+          <p className="text-gray-600 text-base sm:text-lg md:text-xl max-w-2xl mx-auto px-4">
             Khám phá bộ sưu tập sản phẩm cổng nhôm đúc đa dạng của chúng tôi
           </p>
-          <div className="w-24 h-1 luxury-gradient mx-auto rounded-full mt-4"></div>
+          <div className="w-16 sm:w-20 md:w-24 h-1 luxury-gradient mx-auto rounded-full mt-3 sm:mt-4"></div>
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 sm:mb-12 md:mb-16 px-2">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+              className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base ${
                 selectedCategory === category
                   ? 'luxury-gradient text-white shadow-lg scale-105'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 shadow-md hover:shadow-lg'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 shadow-md hover:shadow-lg active:scale-95'
               }`}
             >
               {category}
@@ -50,7 +50,7 @@ export default function ProductsClient({ products, categories }: Props) {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {filteredProducts.map((product, index) => (
             <Link
               key={product.id}

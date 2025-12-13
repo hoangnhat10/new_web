@@ -23,25 +23,25 @@ export default async function BlogPage() {
   );
 
   return (
-    <div className="py-16 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4">
+    <div className="py-10 sm:py-12 md:py-16 bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-16 animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Blog & Tin Tức</h1>
-          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">
+        <div className="text-center mb-10 sm:mb-12 md:mb-16 animate-fade-in-up">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gray-900 px-4">Blog & Tin Tức</h1>
+          <p className="text-gray-600 text-base sm:text-lg md:text-xl max-w-2xl mx-auto px-4">
             Cập nhật những thông tin mới nhất về cổng nhôm đúc, xu hướng thiết kế và kinh nghiệm lắp đặt
           </p>
-          <div className="w-24 h-1 luxury-gradient mx-auto rounded-full mt-4"></div>
+          <div className="w-16 sm:w-20 md:w-24 h-1 luxury-gradient mx-auto rounded-full mt-3 sm:mt-4"></div>
         </div>
 
         {/* Blog Grid */}
         {sortedBlogs.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">📝</div>
-            <p className="text-gray-600 text-xl font-medium">Chưa có bài viết nào.</p>
+          <div className="text-center py-12 sm:py-16">
+            <div className="text-5xl sm:text-6xl mb-4">📝</div>
+            <p className="text-gray-600 text-lg sm:text-xl font-medium">Chưa có bài viết nào.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {sortedBlogs.map((blog, index) => (
               <Link
                 key={blog.id}

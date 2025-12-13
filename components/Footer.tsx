@@ -12,7 +12,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [settings, setSettings] = useState<AdminSettings>({
     logo: '',
-    primaryColor: '#d97706',
+    primaryColor: '#d4af37',
+    theme: 'light',
     address: '123 Đường ABC, Quận XYZ, TP.HCM',
     phone: '0123.456.789',
     email: 'info@congnhomduc.com',
@@ -32,8 +33,25 @@ export default function Footer() {
         const data = await res.json();
         if (data.settings) {
           setSettings(data.settings);
-          const base = data.settings.primaryColor || '#d97706';
+          const base = data.settings.primaryColor || '#d4af37';
           document.documentElement.style.setProperty('--primary-color', base);
+          
+          // Áp dụng theme
+          const theme = data.settings.theme || 'light';
+          if (theme === 'auto') {
+            // Tự động theo hệ thống
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            // Lắng nghe thay đổi
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleChange = (e: MediaQueryListEvent) => {
+              document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            };
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
+          } else {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
         }
       } catch {
         // ignore
@@ -46,12 +64,12 @@ export default function Footer() {
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
       </div>
-      <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+      <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
           {/* Company Info */}
-          <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-14 h-14 luxury-gradient rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+          <div className="col-span-1 sm:col-span-2 lg:col-span-2">
+            <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 luxury-gradient rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
                 {settings.logo ? (
                   <img
                     src={settings.logo}
@@ -62,41 +80,153 @@ export default function Footer() {
                     }}
                   />
                 ) : (
-                  <span className="text-white font-bold text-lg">CND</span>
+                  <span className="text-white font-bold text-xl sm:text-2xl">CND</span>
                 )}
               </div>
-              <h3 className="text-2xl font-bold text-white">Cổng Nhôm Đúc Hùng Phát</h3>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight">Cổng Nhôm Đúc Hùng Phát</h3>
             </div>
-            <p className="mb-6 text-gray-300 leading-relaxed text-lg">
+            <p className="mb-4 sm:mb-6 text-gray-300 leading-relaxed text-sm sm:text-base lg:text-lg">
               Chuyên cung cấp cổng nhôm đúc, hàng rào nhôm đúc và các dịch vụ thi công 
               uy tín, chất lượng cao với nhiều năm kinh nghiệm trong ngành.
             </p>
             <div className="space-y-3">
-              <a 
-                href={googleMapsLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors cursor-pointer group"
-              >
-                <span className="text-xl">📍</span>
-                <span className="group-hover:underline">{address}</span>
-              </a>
-              <p className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors">
-                <span className="text-xl">📞</span>
-                <a href={zaloLink} target="_blank" rel="noopener noreferrer" className="hover:text-primary-300 font-medium">
-                  {settings.phone || '0123.456.789'}
+              {/* Địa chỉ */}
+              {settings.contactInfo?.addresses && settings.contactInfo.addresses.length > 0 ? (
+                <div className="space-y-2">
+                  {settings.contactInfo.addresses.map((addr) => {
+                    const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr.address)}`;
+                    return (
+                      <a
+                        key={addr.id}
+                        href={mapsLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-start space-x-3 text-gray-300 hover:text-white transition-colors cursor-pointer group"
+                      >
+                        <span className="text-xl mt-0.5">📍</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-white/10 text-white">
+                              {addr.type === 'factory' ? '🏭 Nhà máy' : '🏪 Showroom'}
+                            </span>
+                            {addr.label && (
+                              <span className="text-xs text-gray-400">{addr.label}</span>
+                            )}
+                          </div>
+                          <span className="group-hover:underline text-sm">{addr.address}</span>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              ) : (
+                <a 
+                  href={googleMapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors cursor-pointer group"
+                >
+                  <span className="text-xl">📍</span>
+                  <span className="group-hover:underline">{address}</span>
                 </a>
-              </p>
+              )}
+
+              {/* Số điện thoại */}
+              {settings.contactInfo?.phones && settings.contactInfo.phones.length > 0 ? (
+                <div className="space-y-2">
+                  {settings.contactInfo.phones.map((phone) => {
+                    const phoneNum = phone.number.replace(/\D/g, '');
+                    const zaloLink = `https://zalo.me/${phoneNum}`;
+                    return (
+                      <div key={phone.id} className="flex items-center space-x-3 text-gray-300">
+                        <span className="text-xl">📞</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <a
+                              href={`tel:${phoneNum}`}
+                              className="hover:text-primary-300 font-medium text-sm"
+                            >
+                              {phone.number}
+                            </a>
+                            {phone.label && (
+                              <span className="text-xs text-gray-400">({phone.label})</span>
+                            )}
+                          </div>
+                          <a
+                            href={zaloLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-gray-400 hover:text-primary-300 mt-0.5 block"
+                          >
+                            Zalo: {phone.number}
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors">
+                  <span className="text-xl">📞</span>
+                  <a href={zaloLink} target="_blank" rel="noopener noreferrer" className="hover:text-primary-300 font-medium">
+                    {settings.phone || '0123.456.789'}
+                  </a>
+                </p>
+              )}
+
+              {/* Email */}
               <p className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors">
                 <span className="text-xl">✉️</span>
-                <a href={`mailto:${settings.email || 'info@congnhomduc.com'}`} className="hover:text-primary-300 font-medium">{settings.email || 'info@congnhomduc.com'}</a>
+                <a href={`mailto:${settings.contactInfo?.email || settings.email || 'info@congnhomduc.com'}`} className="hover:text-primary-300 font-medium">
+                  {settings.contactInfo?.email || settings.email || 'info@congnhomduc.com'}
+                </a>
               </p>
+
+              {/* Zalo và Facebook (nếu có) */}
+              {settings.contactInfo?.zalo && (
+                <p className="flex items-center space-x-3 text-gray-300">
+                  <span className="text-xl">💬</span>
+                  <a
+                    href={settings.contactInfo.zalo.startsWith('http') ? settings.contactInfo.zalo : `https://zalo.me/${settings.contactInfo.zalo.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary-300 font-medium text-sm"
+                  >
+                    Zalo: {settings.contactInfo.zalo}
+                  </a>
+                </p>
+              )}
+              {settings.contactInfo?.facebook && (
+                <p className="flex items-center space-x-3 text-gray-300">
+                  <span className="text-xl">📘</span>
+                  <a
+                    href={settings.contactInfo.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary-300 font-medium text-sm"
+                  >
+                    Facebook
+                  </a>
+                </p>
+              )}
+
+              {/* Giờ làm việc */}
+              {settings.contactInfo?.workingHours && (
+                <div className="flex items-start space-x-3 text-gray-300">
+                  <span className="text-xl mt-0.5">🕒</span>
+                  <div className="text-sm">
+                    <p>{settings.contactInfo.workingHours.weekdays || 'Thứ 2 - Thứ 6: 8:00 - 17:30'}</p>
+                    <p>{settings.contactInfo.workingHours.saturday || 'Thứ 7: 8:00 - 12:00'}</p>
+                    <p>{settings.contactInfo.workingHours.sunday || 'Chủ nhật: Nghỉ'}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6">Liên kết nhanh</h4>
+            <h4 className="text-white font-bold text-base sm:text-lg mb-4 sm:mb-6">Liên kết nhanh</h4>
             <ul className="space-y-3">
               <li>
                 <Link href="/" className="text-gray-300 hover:text-primary-300 transition-colors duration-300 flex items-center group">
@@ -133,7 +263,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6">Dịch vụ</h4>
+            <h4 className="text-white font-bold text-base sm:text-lg mb-4 sm:mb-6">Dịch vụ</h4>
             <ul className="space-y-3">
               <li>
                 <span className="text-gray-300 hover:text-primary-300 transition-colors duration-300 cursor-pointer flex items-center group">
@@ -163,8 +293,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 text-center">
-          <p className="text-gray-400">
+        <div className="border-t border-white/10 mt-8 sm:mt-12 pt-6 sm:pt-8 text-center">
+          <p className="text-gray-400 text-sm sm:text-base">
             &copy; {currentYear} <span className="text-white font-semibold">Cổng Nhôm Đúc</span>. Tất cả quyền được bảo lưu.
           </p>
         </div>

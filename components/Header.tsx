@@ -12,7 +12,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [settings, setSettings] = useState<AdminSettings>({
     logo: '',
-    primaryColor: '#d97706',
+    primaryColor: '#d4af37',
+    theme: 'light',
     address: '',
     phone: '0123.456.789',
     email: 'info@congnhomduc.com',
@@ -31,8 +32,25 @@ export default function Header() {
         const data = await res.json();
         if (data.settings) {
           setSettings(data.settings);
-          const base = data.settings.primaryColor || '#d97706';
+          const base = data.settings.primaryColor || '#d4af37';
           document.documentElement.style.setProperty('--primary-color', base);
+          
+          // Áp dụng theme
+          const theme = data.settings.theme || 'light';
+          if (theme === 'auto') {
+            // Tự động theo hệ thống
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            // Lắng nghe thay đổi
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleChange = (e: MediaQueryListEvent) => {
+              document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            };
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
+          } else {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
         }
       } catch {
         // ignore
@@ -50,12 +68,13 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-gray-100">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-24">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-14 h-14 luxury-gradient rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 overflow-visible logo-sparkle logo-shine relative">
+    <header className="sticky top-0 z-50 py-3 sm:py-4">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="bg-white/95 backdrop-blur-md shadow-lg rounded-2xl border border-gray-100">
+          <div className="flex items-center justify-between min-h-16 sm:h-20 md:h-24 px-3 sm:px-4 md:px-6 py-2 sm:py-0">
+            {/* Logo */}
+            <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 group flex-shrink-0">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 luxury-gradient rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300 overflow-visible logo-sparkle logo-shine relative">
               {settings.logo ? (
                 <img
                   src={settings.logo}
@@ -66,7 +85,7 @@ export default function Header() {
                   }}
                 />
               ) : (
-                <span className="text-white font-bold text-xl relative z-10 group-hover:scale-110 transition-transform duration-300">CND</span>
+                <span className="text-white font-bold text-lg sm:text-xl md:text-2xl relative z-10 group-hover:scale-110 transition-transform duration-300">CND</span>
               )}
               
               {/* Diamond sparkle rays - 8 rays around the logo */}
@@ -99,41 +118,41 @@ export default function Header() {
               </div>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors">Cổng Nhôm Đúc Hùng Phát</h1>
-              <p className="text-xs text-gray-500 font-medium">Chất lượng - Uy tín</p>
+              <h1 className="text-xs sm:text-sm md:text-base lg:text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors leading-tight">Cổng Nhôm Đúc Hùng Phát</h1>
+              <p className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 font-medium">Chất lượng - Uy tín</p>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="relative px-4 py-2 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 rounded-lg group"
+                className="relative px-3 xl:px-4 py-2 text-sm xl:text-base text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 rounded-full group"
               >
                 <span className="relative z-10">{item.label}</span>
-                <span className="absolute inset-0 bg-primary-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-500 to-primary-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                <span className="absolute inset-0 bg-primary-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-500 to-primary-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></span>
               </Link>
             ))}
           </nav>
 
           {/* Contact Button */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             <a
               href={zaloLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="luxury-gradient text-white px-6 py-3 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold shadow-lg"
+              className="luxury-gradient text-white px-4 xl:px-6 py-2 xl:py-3 rounded-lg xl:rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold shadow-lg text-sm xl:text-base whitespace-nowrap"
             >
-              📞 {settings.phone || '0123.456.789'}
+              📞 <span className="hidden xl:inline">{settings.phone || '0123.456.789'}</span><span className="xl:hidden">Hotline</span>
             </a>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -153,31 +172,33 @@ export default function Header() {
               )}
             </svg>
           </button>
-        </div>
+          </div>
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <nav className="md:hidden py-4 border-t animate-fade-in">
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <nav className="lg:hidden py-3 border-t border-gray-200 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto px-4 sm:px-6">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="block py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 px-4 rounded-lg transition-all duration-300 font-medium"
+                className="block py-3 px-4 text-gray-700 hover:text-primary-600 hover:bg-primary-50 active:bg-primary-100 rounded-full transition-all duration-300 font-medium text-base mx-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
             <a
-                  href={zaloLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-              className="block mt-4 luxury-gradient text-white px-4 py-3 rounded-xl text-center hover:shadow-lg transition-all duration-300 font-semibold shadow-md"
+              href={zaloLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mt-3 mx-4 luxury-gradient text-white px-4 py-3 rounded-full text-center hover:shadow-lg active:scale-95 transition-all duration-300 font-semibold shadow-md"
+              onClick={() => setIsMenuOpen(false)}
             >
               📞 Hotline: {settings.phone || '0123.456.789'}
             </a>
           </nav>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

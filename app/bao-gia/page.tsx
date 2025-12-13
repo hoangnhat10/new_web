@@ -22,7 +22,8 @@ export default function QuotePage() {
   const [images, setImages] = useState<{ name: string; data: string; size: number }[]>([]);
   const [settings, setSettings] = useState<AdminSettings>({
     logo: '',
-    primaryColor: '#d97706',
+    primaryColor: '#d4af37',
+    theme: 'light',
     address: '',
     phone: '0123.456.789',
     email: 'info@congnhomduc.com',
@@ -118,26 +119,26 @@ Xin cảm ơn!`;
   };
 
   return (
-    <div className="py-12">
-      <div className="container mx-auto px-4">
+    <div className="py-8 sm:py-10 md:py-12">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Yêu Cầu Báo Giá</h1>
-            <p className="text-gray-600 text-lg">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Yêu Cầu Báo Giá</h1>
+            <p className="text-gray-600 text-base sm:text-lg px-4">
               Điền thông tin vào form bên dưới, chúng tôi sẽ liên hệ lại với bạn trong thời gian sớm nhất
             </p>
           </div>
 
           {/* Info Message */}
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-6">
-            <p className="font-semibold">📧 Gửi email qua Gmail</p>
-            <p className="text-sm">Sau khi điền form và nhấn &quot;Gửi Yêu Cầu Báo Giá&quot;, email của bạn sẽ được mở với nội dung đã điền sẵn.</p>
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-4 sm:mb-6">
+            <p className="font-semibold text-sm sm:text-base">📧 Gửi email qua Gmail</p>
+            <p className="text-xs sm:text-sm mt-1">Sau khi điền form và nhấn &quot;Gửi Yêu Cầu Báo Giá&quot;, email của bạn sẽ được mở với nội dung đã điền sẵn.</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <div>
                 <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
                   Họ và tên <span className="text-red-500">*</span>
@@ -149,7 +150,7 @@ Xin cảm ơn!`;
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Nhập họ và tên"
                 />
               </div>
@@ -164,14 +165,14 @@ Xin cảm ơn!`;
                   required
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="0123.456.789"
                 />
               </div>
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+            <div className="mb-4 sm:mb-6">
+              <label htmlFor="email" className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
                 Email
               </label>
               <input
@@ -180,13 +181,13 @@ Xin cảm ơn!`;
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                 placeholder="email@example.com"
               />
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="address" className="block text-gray-700 font-medium mb-2">
+            <div className="mb-4 sm:mb-6">
+              <label htmlFor="address" className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
                 Địa chỉ <span className="text-red-500">*</span>
               </label>
               <input
@@ -196,12 +197,12 @@ Xin cảm ơn!`;
                 required
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                 placeholder="Nhập địa chỉ lắp đặt"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <div>
                 <label htmlFor="productType" className="block text-gray-700 font-medium mb-2">
                   Loại sản phẩm <span className="text-red-500">*</span>
@@ -212,7 +213,7 @@ Xin cảm ơn!`;
                   required
                   value={formData.productType}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                 >
                   <option value="">Chọn loại sản phẩm</option>
                   <option value="cong-nhom-duc">Cổng nhôm đúc</option>
@@ -231,14 +232,14 @@ Xin cảm ơn!`;
                   name="size"
                   value={formData.size}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="VD: 4m x 2.5m"
                 />
               </div>
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
+            <div className="mb-4 sm:mb-6">
+              <label htmlFor="message" className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
                 Yêu cầu thêm (nếu có)
               </label>
               <textarea
@@ -247,13 +248,13 @@ Xin cảm ơn!`;
                 rows={4}
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base resize-y"
                 placeholder="Nhập yêu cầu hoặc thông tin bổ sung..."
               />
             </div>
 
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Ảnh tham khảo (có thể chọn nhiều ảnh)</label>
+            <div className="mb-4 sm:mb-6">
+              <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Ảnh tham khảo (có thể chọn nhiều ảnh)</label>
               <input
                 type="file"
                 accept="image/*"
@@ -285,7 +286,7 @@ Xin cảm ơn!`;
 
             <button
               type="submit"
-              className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors duration-200"
+              className="w-full bg-primary-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-primary-700 active:scale-95 transition-all duration-200 text-sm sm:text-base"
             >
               Gửi Yêu Cầu Báo Giá
             </button>
