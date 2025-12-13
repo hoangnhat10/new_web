@@ -18,18 +18,33 @@ type Project = {
 };
 
 // Kiểm tra xem có thể sử dụng Vercel KV không
+// Hỗ trợ cả Vercel KV và Upstash Redis (qua Marketplace)
 function canUseKV(): boolean {
-  return !!(
+  // Kiểm tra Vercel KV (format cũ)
+  if (
     process.env.KV_REST_API_URL &&
     process.env.KV_REST_API_TOKEN &&
     process.env.KV_REST_API_READ_ONLY_TOKEN
-  );
+  ) {
+    return true;
+  }
+  
+  // Kiểm tra Upstash Redis (format mới qua Marketplace)
+  if (
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
+    return true;
+  }
+  
+  return false;
 }
 
 async function readProjects(): Promise<Project[]> {
-  // Ưu tiên sử dụng Vercel KV nếu có
+  // Ưu tiên sử dụng Vercel KV/Upstash Redis nếu có
   if (canUseKV()) {
     try {
+      // @vercel/kv tự động detect cả KV_REST_API_* và UPSTASH_REDIS_REST_*
       const data = await kv.get<Project[]>(KV_KEY);
       return Array.isArray(data) ? data : [];
     } catch (error) {
@@ -49,14 +64,15 @@ async function readProjects(): Promise<Project[]> {
 }
 
 async function writeProjects(projects: Project[]) {
-  // Ưu tiên sử dụng Vercel KV nếu có
+  // Ưu tiên sử dụng Vercel KV/Upstash Redis nếu có
   if (canUseKV()) {
     try {
+      // @vercel/kv tự động detect cả KV_REST_API_* và UPSTASH_REDIS_REST_*
       await kv.set(KV_KEY, projects);
       return;
     } catch (error: any) {
       console.error('Error writing to KV:', error);
-      throw new Error(`Không thể lưu vào Vercel KV: ${error?.message || String(error)}`);
+      throw new Error(`Không thể lưu vào Vercel KV/Upstash Redis: ${error?.message || String(error)}`);
     }
   }
   
