@@ -135,6 +135,11 @@ npm start
 
 ## Lịch sử thay đổi
 
+### Version 1.2.2 (2024)
+- ✅ Thêm slide công trình tiêu biểu thứ 2 ở trang chủ (section "Công Trình Nổi Bật")
+- ✅ Sửa Footer: Logo và tên công ty link đến trang chủ, đặc biệt trên mobile
+- ✅ Cải thiện UX: Người dùng mobile có thể click vào logo/tên công ty để về trang chủ
+
 ### Version 1.2.1 (2024)
 - ✅ Fix build trên Vercel: escape ký tự dấu nháy kép trong trang admin
 - ✅ Tắt rule `@next/next/no-img-element` để chấp nhận `<img>` cho ảnh base64 hiện tại
