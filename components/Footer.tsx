@@ -68,8 +68,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
           {/* Company Info */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-2">
-            <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 luxury-gradient rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6 group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 luxury-gradient rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                 {settings.logo ? (
                   <img
                     src={settings.logo}
@@ -83,8 +83,8 @@ export default function Footer() {
                   <span className="text-white font-bold text-xl sm:text-2xl">CND</span>
                 )}
               </div>
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight">Cổng Nhôm Đúc Hùng Phát</h3>
-            </div>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight group-hover:text-primary-300 transition-colors">Cổng Nhôm Đúc Hùng Phát</h3>
+            </Link>
             <p className="mb-4 sm:mb-6 text-gray-300 leading-relaxed text-sm sm:text-base lg:text-lg">
               Chuyên cung cấp cổng nhôm đúc, hàng rào nhôm đúc và các dịch vụ thi công 
               uy tín, chất lượng cao với nhiều năm kinh nghiệm trong ngành.

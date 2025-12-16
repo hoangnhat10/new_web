@@ -180,6 +180,23 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Featured Projects Section 2 - Slide công trình tiêu biểu bổ sung */}
+      {projects.length > 0 && (
+        <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="mb-10 sm:mb-12 md:mb-16 animate-fade-in-up">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-gray-900 text-center">
+                Công Trình Nổi Bật
+              </h2>
+              <p className="text-gray-600 text-base sm:text-lg md:text-xl max-w-3xl mx-auto text-left sm:text-center leading-relaxed">
+                Khám phá thêm những công trình ấn tượng khác của chúng tôi, được thiết kế và thi công với sự tỉ mỉ và chuyên nghiệp.
+              </p>
+            </div>
+            <ProjectsCarousel projects={projects} />
+          </div>
+        </section>
+      )}
+
       {/* About Section */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 luxury-gradient-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
