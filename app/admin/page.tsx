@@ -168,7 +168,7 @@ export default function AdminPage() {
   const CATEGORY_OPTIONS = ['Cổng', 'Lan can', 'Hàng rào', 'Lồng đèn'];
   const [password, setPassword] = useState('');
   const [isAuthed, setIsAuthed] = useState(false);
-  const [activeTab, setActiveTab] = useState<'products' | 'brand' | 'blog' | 'projects' | 'contact'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'brand' | 'blog' | 'projects' | 'projects-2' | 'contact'>('products');
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [form, setForm] = useState<AdminProduct>(EMPTY_PRODUCT);
   const [settings, setSettings] = useState<AdminSettings>(EMPTY_SETTINGS);
@@ -176,10 +176,13 @@ export default function AdminPage() {
   const [blogForm, setBlogForm] = useState<BlogPost>(EMPTY_BLOG);
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectForm, setProjectForm] = useState<Project>(EMPTY_PROJECT);
+  const [projects2, setProjects2] = useState<Project[]>([]);
+  const [projectForm2, setProjectForm2] = useState<Project>(EMPTY_PROJECT);
   const [loading, setLoading] = useState(false);
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
   const [loadingProjects, setLoadingProjects] = useState(false);
+  const [loadingProjects2, setLoadingProjects2] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [settingsMsg, setSettingsMsg] = useState<string | null>(null);
@@ -188,6 +191,8 @@ export default function AdminPage() {
   const [blogErr, setBlogErr] = useState<string | null>(null);
   const [projectMsg, setProjectMsg] = useState<string | null>(null);
   const [projectErr, setProjectErr] = useState<string | null>(null);
+  const [projectMsg2, setProjectMsg2] = useState<string | null>(null);
+  const [projectErr2, setProjectErr2] = useState<string | null>(null);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const adminPassword = useMemo(
@@ -269,6 +274,19 @@ export default function AdminPage() {
       setProjectErr('Không thể tải danh sách công trình');
     } finally {
       setLoadingProjects(false);
+    }
+  };
+
+  const fetchProjects2 = async () => {
+    try {
+      setLoadingProjects2(true);
+      const res = await fetch('/api/admin/projects-2');
+      const data = await res.json();
+      setProjects2(data.projects || []);
+    } catch (err) {
+      setProjectErr2('Không thể tải danh sách công trình');
+    } finally {
+      setLoadingProjects2(false);
     }
   };
 
@@ -569,6 +587,92 @@ export default function AdminPage() {
     reader.readAsDataURL(file);
   };
 
+  const handleProjectImageChange2 = (file?: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProjectForm2((prev) => ({ ...prev, image: String(reader.result || '') }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const resetProjectForm2 = () => {
+    setProjectForm2(EMPTY_PROJECT);
+    setProjectMsg2(null);
+    setProjectErr2(null);
+  };
+
+  const handleProjectSubmit2 = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projectForm2.image) {
+      setProjectErr2('Vui lòng chọn ảnh công trình');
+      return;
+    }
+    
+    const imageSize = projectForm2.image.length;
+    const estimatedSizeMB = (imageSize * 0.75) / (1024 * 1024);
+    if (estimatedSizeMB > 5) {
+      setProjectErr2(`Ảnh quá lớn (ước tính ${estimatedSizeMB.toFixed(2)}MB). Vui lòng chọn ảnh nhỏ hơn 5MB.`);
+      return;
+    }
+    
+    setLoadingProjects2(true);
+    setProjectMsg2(null);
+    setProjectErr2(null);
+    try {
+      const method = projectForm2.id ? 'PUT' : 'POST';
+      const payload = {
+        ...projectForm2,
+        id: projectForm2.id || `project-2-${Date.now()}`,
+      };
+      const res = await fetch('/api/admin/projects-2', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      
+      const data = await res.json();
+      if (!res.ok) {
+        const errorMsg = data.error || data.message || 'Lưu công trình thất bại';
+        const details = data.details ? ` Chi tiết: ${data.details}` : '';
+        throw new Error(errorMsg + details);
+      }
+      
+      await fetchProjects2();
+      setProjectMsg2(projectForm2.id ? 'Đã cập nhật công trình' : 'Đã thêm công trình');
+      setProjectForm2(EMPTY_PROJECT);
+    } catch (err: any) {
+      console.error('Error saving project:', err);
+      setProjectErr2(err?.message || 'Có lỗi xảy ra khi lưu công trình');
+    } finally {
+      setLoadingProjects2(false);
+    }
+  };
+
+  const handleProjectEdit2 = (project: Project) => {
+    setProjectForm2(project);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleProjectDelete2 = async (id: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa công trình này?')) return;
+    setLoadingProjects2(true);
+    setProjectErr2(null);
+    try {
+      const res = await fetch(`/api/admin/projects-2?id=${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Xóa công trình thất bại');
+      await fetchProjects2();
+      setProjectMsg2('Đã xóa công trình');
+      if (projectForm2.id === id) setProjectForm2(EMPTY_PROJECT);
+    } catch (err: any) {
+      setProjectErr2(err?.message || 'Có lỗi xảy ra');
+    } finally {
+      setLoadingProjects2(false);
+    }
+  };
+
   const resetProjectForm = () => {
     setProjectForm(EMPTY_PROJECT);
   };
@@ -695,7 +799,16 @@ export default function AdminPage() {
               fetchProjects();
             }}
           >
-            Quản lý Công trình
+            Quản lý Công trình 1
+          </button>
+          <button
+            className={`px-4 py-2 rounded-lg font-semibold ${activeTab === 'projects-2' ? 'luxury-gradient text-white shadow-md' : 'bg-white border'}`}
+            onClick={() => {
+              setActiveTab('projects-2');
+              fetchProjects2();
+            }}
+          >
+            Quản lý Công trình 2
           </button>
           <button
             className={`px-4 py-2 rounded-lg font-semibold ${activeTab === 'contact' ? 'luxury-gradient text-white shadow-md' : 'bg-white border'}`}
@@ -1295,6 +1408,123 @@ export default function AdminPage() {
                         <button
                           className="px-4 py-2 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
                           onClick={() => handleProjectDelete(project.id)}
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        )}
+
+        {activeTab === 'projects-2' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Form Project 2 */}
+          <div className="bg-white shadow-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:col-span-1">
+            <h2 className="text-xl font-bold mb-4">{projectForm2.id ? 'Sửa công trình' : 'Thêm công trình'}</h2>
+            {projectMsg2 && <p className="text-green-600 text-sm mb-2">{projectMsg2}</p>}
+            {projectErr2 && <p className="text-red-600 text-sm mb-2">{projectErr2}</p>}
+            <form onSubmit={handleProjectSubmit2} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Ảnh công trình <span className="text-red-500">*</span></label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleProjectImageChange2(e.target.files?.[0])}
+                  required={!projectForm2.image}
+                />
+                {projectForm2.image && (
+                  <div className="mt-3 relative w-full h-48 border rounded-lg overflow-hidden bg-white">
+                    <img src={projectForm2.image} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      className="absolute top-2 right-2 bg-white/80 text-red-600 text-xs px-2 py-1 rounded"
+                      onClick={() => setProjectForm2((prev) => ({ ...prev, image: '' }))}
+                    >
+                      X
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Tiêu đề (tùy chọn)</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  value={projectForm2.title || ''}
+                  onChange={(e) => setProjectForm2({ ...projectForm2, title: e.target.value })}
+                  placeholder="Ví dụ: Cổng biệt thự cao cấp"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Mô tả (tùy chọn)</label>
+                <textarea
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  rows={3}
+                  value={projectForm2.description || ''}
+                  onChange={(e) => setProjectForm2({ ...projectForm2, description: e.target.value })}
+                  placeholder="Mô tả ngắn về công trình..."
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={loadingProjects2}
+                  className="flex-1 luxury-gradient text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50"
+                >
+                  {loadingProjects2 ? 'Đang lưu...' : projectForm2.id ? 'Cập nhật' : 'Thêm'}
+                </button>
+                {projectForm2.id && (
+                  <button
+                    type="button"
+                    onClick={resetProjectForm2}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Hủy
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          {/* Projects 2 List */}
+          <div className="lg:col-span-2">
+            <div className="bg-white shadow-lg rounded-xl sm:rounded-2xl p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
+                <h2 className="text-xl font-bold">Danh sách công trình 2 ({projects2.length})</h2>
+              </div>
+              {loadingProjects2 && <p className="text-gray-500 text-sm">Đang tải...</p>}
+              {projectMsg2 && <p className="text-green-600 text-sm mb-2">{projectMsg2}</p>}
+              {projectErr2 && <p className="text-red-600 text-sm mb-2">{projectErr2}</p>}
+              <div className="space-y-4">
+                {projects2.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">Chưa có công trình nào. Hãy thêm công trình mới.</p>
+                ) : (
+                  projects2.map((project) => (
+                    <div key={project.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden shadow-sm flex-shrink-0">
+                        <img src={project.image} alt={project.title || 'Công trình'} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 mb-1 truncate">{project.title || 'Công trình (chưa có tiêu đề)'}</h3>
+                        {project.description && (
+                          <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button
+                          className="px-4 py-2 text-sm luxury-gradient text-white rounded-lg hover:shadow-md"
+                          onClick={() => handleProjectEdit2(project)}
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          className="px-4 py-2 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
+                          onClick={() => handleProjectDelete2(project.id)}
                         >
                           Xóa
                         </button>

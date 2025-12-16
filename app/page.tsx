@@ -6,6 +6,7 @@ import React from 'react';
 import Link from 'next/link';
 import { readAllProducts } from '@/lib/products';
 import { readAllProjects } from '@/lib/projects';
+import { readAllProjects2 } from '@/lib/projects-2';
 import ProjectsCarousel from '@/components/ProjectsCarousel';
 
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,7 @@ export default async function Home() {
   const products = await readAllProducts();
   const featuredProducts = products.slice(0, 3);
   const projects = await readAllProjects();
+  const projects2 = await readAllProjects2();
 
   return (
     <div className="overflow-hidden">
@@ -58,7 +60,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured Projects Section */}
+      {/* Featured Projects Section - 2 slides xếp dọc */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="mb-10 sm:mb-12 md:mb-16 animate-fade-in-up">
@@ -69,8 +71,30 @@ export default async function Home() {
               Tại Hùng Phát, chúng tôi không ngừng tìm kiếm và áp dụng các công nghệ tiên tiến nhất để tạo ra những sản phẩm vượt trội về chất lượng và thiết kế. Đội ngũ nghệ nhân tài năng của chúng tôi không chỉ là những người thợ lành nghề, mà còn là những nghệ sĩ đam mê, biết cách làm cho mỗi sản phẩm trở nên độc đáo và tinh tế.
             </p>
           </div>
-          {projects.length > 0 ? (
-            <ProjectsCarousel projects={projects} />
+          {(projects.length > 0 || projects2.length > 0) ? (
+            <div className="space-y-8 sm:space-y-10 md:space-y-12">
+              {/* Slide công trình tiêu biểu 1 - Ở trên (chỉ hiển thị hình ảnh) */}
+              {projects.length > 0 && (
+                <div className="animate-fade-in-up">
+                  <ProjectsCarousel projects={projects} />
+                </div>
+              )}
+              
+              {/* Slide công trình tiêu biểu 2 - Ở dưới (có header riêng) */}
+              {projects2.length > 0 && (
+                <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  <div className="mb-4 sm:mb-6 text-center">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-gray-900">
+                      Tạo Nên Vẻ Đẹp Cho Ngôi Nhà Của Bạn
+                    </h3>
+                    <p className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">
+                      Mỗi công trình là một tác phẩm nghệ thuật, mang lại vẻ đẹp sang trọng và không gian sống đẳng cấp cho tổ ấm của bạn.
+                    </p>
+                  </div>
+                  <ProjectsCarousel projects={projects2} />
+                </div>
+              )}
+            </div>
           ) : (
             <div className="text-center py-12 sm:py-16 bg-white rounded-2xl shadow-lg">
               <div className="text-5xl sm:text-6xl mb-4">🏗️</div>
@@ -179,23 +203,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* Featured Projects Section 2 - Slide công trình tiêu biểu bổ sung */}
-      {projects.length > 0 && (
-        <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white">
-          <div className="container mx-auto px-4 sm:px-6">
-            <div className="mb-10 sm:mb-12 md:mb-16 animate-fade-in-up">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-gray-900 text-center">
-                Công Trình Nổi Bật
-              </h2>
-              <p className="text-gray-600 text-base sm:text-lg md:text-xl max-w-3xl mx-auto text-left sm:text-center leading-relaxed">
-                Khám phá thêm những công trình ấn tượng khác của chúng tôi, được thiết kế và thi công với sự tỉ mỉ và chuyên nghiệp.
-              </p>
-            </div>
-            <ProjectsCarousel projects={projects} />
-          </div>
-        </section>
-      )}
 
       {/* About Section */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 luxury-gradient-dark text-white relative overflow-hidden">

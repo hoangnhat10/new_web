@@ -4,7 +4,7 @@
  */
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 type Project = {
   id: string;
@@ -29,56 +29,109 @@ export default function ProjectsCarousel({ projects }: Props) {
   const touchDeltaX = useRef<number>(0);
   const dragOffsetRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const containerWidthRef = useRef<number>(0);
+  const lastMoveTime = useRef<number>(0);
+  const lastMoveX = useRef<number>(0);
+  const velocityRef = useRef<number>(0);
 
-  // Detect desktop
+  // Detect desktop và lưu container width - Tối ưu với debounce
   useEffect(() => {
+    let resizeTimer: NodeJS.Timeout;
     const checkDesktop = () => {
-      setIsDesktop(window.innerWidth >= 1024); // lg breakpoint
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    const updateContainerWidth = () => {
+      if (containerRef.current) {
+        containerWidthRef.current = containerRef.current.offsetWidth;
+      }
+    };
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        checkDesktop();
+        updateContainerWidth();
+      }, 150); // Debounce 150ms
     };
     checkDesktop();
-    window.addEventListener('resize', checkDesktop);
-    return () => window.removeEventListener('resize', checkDesktop);
+    updateContainerWidth();
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
-  const goPrev = () => {
+  const goPrev = useCallback(() => {
     if (projects.length <= 1) return;
     setActiveIndex((prev) => (prev - 1 + projects.length) % projects.length);
-  };
+  }, [projects.length]);
 
-  const goNext = () => {
+  const goNext = useCallback(() => {
     if (projects.length <= 1) return;
     setActiveIndex((prev) => (prev + 1) % projects.length);
-  };
+  }, [projects.length]);
 
-  // Mouse drag handlers
+  // Mouse drag handlers - Hiệu ứng giống Instagram với momentum scrolling
   const handleMouseDown = (e: React.MouseEvent) => {
     if (projects.length <= 1) return;
     setIsDragging(true);
     setDragStartX(e.clientX);
     setDragOffset(0);
     dragOffsetRef.current = 0;
+    velocityRef.current = 0;
+    lastMoveTime.current = Date.now();
+    lastMoveX.current = e.clientX;
+    if (containerRef.current) {
+      containerWidthRef.current = containerRef.current.offsetWidth;
+    }
     e.preventDefault();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || projects.length <= 1) return;
+    const now = Date.now();
+    const deltaTime = now - lastMoveTime.current;
     const deltaX = e.clientX - dragStartX;
-    setDragOffset(deltaX);
-    dragOffsetRef.current = deltaX;
+    
+    // Tính toán velocity cho momentum scrolling
+    if (deltaTime > 0) {
+      const moveDelta = e.clientX - lastMoveX.current;
+      velocityRef.current = moveDelta / deltaTime; // pixels per ms
+    }
+    
+    lastMoveTime.current = now;
+    lastMoveX.current = e.clientX;
+    
+    // Giới hạn drag offset để có thể preview một phần slide tiếp theo
+    const maxDrag = containerWidthRef.current * 0.3; // Cho phép preview 30%
+    const clampedDeltaX = Math.max(-maxDrag, Math.min(maxDrag, deltaX));
+    setDragOffset(clampedDeltaX);
+    dragOffsetRef.current = clampedDeltaX;
   };
 
   const handleMouseUp = () => {
     if (!isDragging || projects.length <= 1) return;
-    const threshold = 100;
+    
+    const threshold = containerWidthRef.current * 0.2; // 20% của container width
     const offset = dragOffsetRef.current;
-    if (offset > threshold) {
-      goPrev();
-    } else if (offset < -threshold) {
-      goNext();
+    const velocity = velocityRef.current;
+    
+    // Momentum scrolling: Nếu kéo nhanh, tự động chuyển slide
+    const momentumThreshold = 0.3; // pixels per ms
+    const shouldSnap = Math.abs(offset) > threshold || Math.abs(velocity) > momentumThreshold;
+    
+    if (shouldSnap) {
+      if (offset > 0 || velocity > momentumThreshold) {
+        goPrev();
+      } else if (offset < 0 || velocity < -momentumThreshold) {
+        goNext();
+      }
     }
+    
     setIsDragging(false);
     setDragOffset(0);
     dragOffsetRef.current = 0;
+    velocityRef.current = 0;
   };
 
   const handleMouseLeave = () => {
@@ -89,60 +142,120 @@ export default function ProjectsCarousel({ projects }: Props) {
     }
   };
 
-  // Global mouse events for smooth dragging
+  // Global mouse events - Hiệu ứng giống Instagram với momentum scrolling
   useEffect(() => {
     if (!isDragging) return;
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      const deltaTime = now - lastMoveTime.current;
       const deltaX = e.clientX - dragStartX;
-      setDragOffset(deltaX);
-      dragOffsetRef.current = deltaX;
+      
+      // Tính toán velocity cho momentum scrolling
+      if (deltaTime > 0) {
+        const moveDelta = e.clientX - lastMoveX.current;
+        velocityRef.current = moveDelta / deltaTime; // pixels per ms
+      }
+      
+      lastMoveTime.current = now;
+      lastMoveX.current = e.clientX;
+      
+      // Giới hạn drag offset để có thể preview một phần slide tiếp theo (giống Instagram)
+      const maxDrag = containerWidthRef.current * 0.3; // Cho phép preview 30%
+      const clampedDeltaX = Math.max(-maxDrag, Math.min(maxDrag, deltaX));
+      setDragOffset(clampedDeltaX);
+      dragOffsetRef.current = clampedDeltaX;
     };
 
     const handleGlobalMouseUp = () => {
-      const threshold = 100;
+      const threshold = containerWidthRef.current * 0.2; // 20% của container width
       const offset = dragOffsetRef.current;
-      if (offset > threshold) {
-        goPrev();
-      } else if (offset < -threshold) {
-        goNext();
+      const velocity = velocityRef.current;
+      
+      // Momentum scrolling: Nếu kéo nhanh, tự động chuyển slide
+      const momentumThreshold = 0.3; // pixels per ms
+      const shouldSnap = Math.abs(offset) > threshold || Math.abs(velocity) > momentumThreshold;
+      
+      if (shouldSnap) {
+        if (offset > 0 || velocity > momentumThreshold) {
+          goPrev();
+        } else if (offset < 0 || velocity < -momentumThreshold) {
+          goNext();
+        }
       }
+      
       setIsDragging(false);
       setDragOffset(0);
       dragOffsetRef.current = 0;
+      velocityRef.current = 0;
     };
 
-    window.addEventListener('mousemove', handleGlobalMouseMove);
+    window.addEventListener('mousemove', handleGlobalMouseMove, { passive: false });
     window.addEventListener('mouseup', handleGlobalMouseUp);
     
     return () => {
       window.removeEventListener('mousemove', handleGlobalMouseMove);
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [isDragging, dragStartX, projects.length]);
+  }, [isDragging, dragStartX, projects.length, goPrev, goNext]);
 
-  // Touch handlers
+  // Touch handlers - Hiệu ứng giống Instagram với momentum scrolling
   const handleTouchStart = (e: React.TouchEvent) => {
     if (projects.length <= 1) return;
     touchStartX.current = e.touches[0].clientX;
     touchDeltaX.current = 0;
+    velocityRef.current = 0;
+    lastMoveTime.current = Date.now();
+    lastMoveX.current = e.touches[0].clientX;
+    if (containerRef.current) {
+      containerWidthRef.current = containerRef.current.offsetWidth;
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (touchStartX.current === null || projects.length <= 1) return;
-    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+    const now = Date.now();
+    const deltaTime = now - lastMoveTime.current;
+    const deltaX = e.touches[0].clientX - touchStartX.current;
+    
+    // Tính toán velocity cho momentum scrolling
+    if (deltaTime > 0) {
+      const moveDelta = e.touches[0].clientX - lastMoveX.current;
+      velocityRef.current = moveDelta / deltaTime;
+    }
+    
+    lastMoveTime.current = now;
+    lastMoveX.current = e.touches[0].clientX;
+    touchDeltaX.current = deltaX;
+    
+    // Giới hạn drag offset để preview một phần slide tiếp theo
+    const maxDrag = containerWidthRef.current * 0.3;
+    const clampedDeltaX = Math.max(-maxDrag, Math.min(maxDrag, deltaX));
+    setDragOffset(clampedDeltaX);
   };
 
   const handleTouchEnd = () => {
     if (touchStartX.current === null || projects.length <= 1) return;
-    const threshold = 50;
-    if (touchDeltaX.current > threshold) {
-      goPrev();
-    } else if (touchDeltaX.current < -threshold) {
-      goNext();
+    const threshold = containerWidthRef.current * 0.2;
+    const offset = touchDeltaX.current;
+    const velocity = velocityRef.current;
+    
+    // Momentum scrolling: Nếu swipe nhanh, tự động chuyển slide
+    const momentumThreshold = 0.3;
+    const shouldSnap = Math.abs(offset) > threshold || Math.abs(velocity) > momentumThreshold;
+    
+    if (shouldSnap) {
+      if (offset > 0 || velocity > momentumThreshold) {
+        goPrev();
+      } else if (offset < 0 || velocity < -momentumThreshold) {
+        goNext();
+      }
     }
+    
     touchStartX.current = null;
     touchDeltaX.current = 0;
+    setDragOffset(0);
+    velocityRef.current = 0;
   };
 
   const openFullscreen = (index: number) => {
@@ -220,12 +333,13 @@ export default function ProjectsCarousel({ projects }: Props) {
               </div>
             </div>
             
-            {/* Ảnh giữa (active) - Nổi bật với hiệu ứng sang trọng */}
+            {/* Ảnh giữa (active) - Nổi bật với hiệu ứng mượt mà */}
             <div 
-              className={`w-1/3 h-full flex-shrink-0 z-20 ${!isDragging ? 'transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : ''}`}
+              className={`w-1/3 h-full flex-shrink-0 z-20 ${!isDragging ? 'transition-all duration-[800ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]' : ''}`}
               style={{
                 transform: `translateX(${isDragging ? dragOffset : 0}px) scale(1.05)`,
                 filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.3))',
+                willChange: isDragging ? 'transform' : 'auto',
               }}
             >
               <div 
@@ -258,9 +372,10 @@ export default function ProjectsCarousel({ projects }: Props) {
             
             {/* Ảnh bên phải */}
             <div 
-              className={`w-1/3 h-full flex-shrink-0 ${!isDragging ? 'transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : ''}`}
+              className={`w-1/3 h-full flex-shrink-0 ${!isDragging ? 'transition-all duration-[800ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]' : ''}`}
               style={{
                 transform: `translateX(${isDragging ? dragOffset * 0.3 : 0}px) scale(0.9)`,
+                willChange: isDragging ? 'transform' : 'auto',
               }}
             >
               <div 
@@ -276,11 +391,14 @@ export default function ProjectsCarousel({ projects }: Props) {
             </div>
           </div>
         ) : (
-          // Mobile hoặc ít hơn 3 ảnh: Hiển thị 1 ảnh với hiệu ứng trượt sang trọng
+          // Mobile hoặc ít hơn 3 ảnh: Hiệu ứng giống Instagram - mượt mà với momentum scrolling
           <div 
-            className={`flex h-full ${!isDragging ? 'transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]' : ''}`}
+            className={`flex h-full ${!isDragging ? 'transition-transform duration-[400ms] ease-[cubic-bezier(0.32,0.72,0,1)]' : ''}`}
             style={{
-              transform: `translateX(calc(-${activeIndex * 100}% + ${isDragging ? dragOffset : 0}px))`,
+              transform: `translateX(calc(-${activeIndex * 100}% + ${dragOffset}px))`,
+              willChange: isDragging ? 'transform' : 'auto',
+              cursor: isDragging ? 'grabbing' : 'grab',
+              touchAction: 'pan-y pinch-zoom',
             }}
           >
             {projects.map((project, index) => (
@@ -292,15 +410,22 @@ export default function ProjectsCarousel({ projects }: Props) {
                   <img
                     src={project.image}
                     alt={project.title || `Công trình ${index + 1}`}
-                    className="w-full h-full object-contain bg-gray-100 cursor-pointer transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    className="w-full h-full object-contain bg-gray-100 cursor-pointer"
                     onClick={(e) => {
-                      if (!isDragging) {
+                      if (!isDragging && Math.abs(dragOffset) < 10) {
                         openFullscreen(index);
                       }
                     }}
                     style={{
-                      opacity: index === activeIndex ? 1 : 0.8,
-                      transform: index === activeIndex ? 'scale(1)' : 'scale(0.95)',
+                      opacity: (() => {
+                        if (isDragging && containerWidthRef.current > 0) {
+                          return Math.max(0.3, 1 - Math.abs(dragOffset) / (containerWidthRef.current * 0.5));
+                        }
+                        return index === activeIndex ? 1 : 0.5;
+                      })(),
+                      transform: index === activeIndex ? 'scale(1)' : 'scale(0.98)',
+                      willChange: isDragging && index === activeIndex ? 'opacity' : 'auto',
+                      transition: isDragging ? 'none' : 'opacity 0.2s ease-out',
                     }}
                   />
                   {/* Overlay gradient sang trọng */}
